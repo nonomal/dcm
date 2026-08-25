@@ -184,4 +184,153 @@ export const management: DockerTool[] = [
       - DOCKGE_STACKS_DIR=/opt/stacks
       - DOCKGE_ENABLE_CONSOLE=true`,
   },
+  {
+    id: "nebula-sync",
+    name: "Nebula Sync",
+    description:
+      "Synchronize Pi-hole v6.x configuration across multiple replicas automatically. Keeps your primary Pi-hole in sync with secondary instances via scheduled CRON jobs.",
+    category: "Networking",
+    tags: ["Ad Blocking", "DNS", "Pi-hole", "Sync"],
+    githubUrl: "https://github.com/lovelaze/nebula-sync",
+    icon: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/nebula-sync.svg",
+    composeContent: `services:
+  nebula-sync:
+    image: ghcr.io/lovelaze/nebula-sync:latest
+    container_name: \${CONTAINER_PREFIX}nebula-sync
+    environment:
+      - PRIMARY=\${NEBULA_PRIMARY:-http://ph1.example.com|password}
+      - REPLICAS=\${NEBULA_REPLICAS:-http://ph2.example.com|password,http://ph3.example.com|password}
+      - FULL_SYNC=true
+      - RUN_GRAVITY=true
+      - CRON=0 * * * *
+    restart: \${RESTART_POLICY}`,
+  },
+  {
+    id: "panelio",
+    name: "Panelio",
+    description:
+      "Self-hosted services dashboard with a built-in web admin UI. Forked from Homepage, it adds web-based management for services, bookmarks, widgets, and settings — no more hand-editing YAML.",
+    category: "Management",
+    tags: ["Dashboard", "Homepage", "Management", "Services"],
+    githubUrl: "https://github.com/Vellis59/panelio",
+    icon: "https://raw.githubusercontent.com/Vellis59/panelio/main/public/logo.svg",
+    composeContent: `services:
+  panelio:
+    image: ghcr.io/vellis59/panelio:latest
+    container_name: \${CONTAINER_PREFIX}panelio
+    ports:
+      - "3011:3000"
+    environment:
+      - HOMEPAGE_ALLOWED_HOSTS=localhost
+      - PANELIO_ADMIN_PASSWORD=\${PANELIO_ADMIN_PASSWORD}
+      - PUID=\${PUID}
+      - PGID=\${PGID}
+      - TZ=\${TZ}
+    volumes:
+      - \${CONFIG_PATH}/panelio:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: \${RESTART_POLICY}`,
+  },
+  {
+    id: "autoxpose",
+    name: "Autoxpose",
+    description:
+      "Automatic DNS and reverse proxy configuration for Docker containers. Add a label to your container and autoxpose creates the DNS record and configures your reverse proxy with SSL — no manual setup required.",
+    category: "Networking",
+    tags: ["DNS", "Reverse Proxy", "Automation", "SSL"],
+    githubUrl: "https://github.com/mostafa-wahied/autoxpose",
+    icon: "https://github.com/mostafa-wahied/autoxpose/raw/main/packages/frontend/public/autoxpose-logo.svg",
+    composeContent: `services:
+  autoxpose:
+    image: mostafawahied/autoxpose:latest
+    container_name: \${CONTAINER_PREFIX}autoxpose
+    ports:
+      - "4949:3000"
+    environment:
+      - SERVER_IP=\${SERVER_IP}
+      - LAN_IP=\${LAN_IP}
+    volumes:
+      - \${DATA_PATH}/autoxpose:/app/packages/backend/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: \${RESTART_POLICY}`,
+  },
+  {
+    id: "portracker",
+    name: "Portracker",
+    description:
+      "Open-source, self-hosted dashboard for homelabs and Docker environments that automatically discovers services and their ports. Provides a real-time network map and prevents port conflicts. Note: Requires elevated privileges (host PID namespace, SYS_PTRACE capability).",
+    category: "Networking",
+    tags: ["Monitoring", "Dashboard", "Network", "Ports", "Docker"],
+    githubUrl: "https://github.com/mostafa-wahied/portracker",
+    icon: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/portracker.svg",
+    composeContent: `services:
+  portracker:
+    image: mostafawahied/portracker:latest
+    container_name: \${CONTAINER_PREFIX}portracker
+    pid: "host"
+    cap_add:
+      - SYS_PTRACE
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    ports:
+      - "4999:4999"
+    volumes:
+      - \${DATA_PATH}/portracker:/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: \${RESTART_POLICY}`,
+  },
+  {
+    id: "zoraxy",
+    name: "Zoraxy",
+    description:
+      "All-in-one homelab network tool providing reverse proxy, HTTP redirections, geo-IP blocking, global area network, web SSH terminal, real-time statistics, and port scanning utilities. Note: Uses ports 80/443/8000 — ensure no other reverse proxy (nginx, caddy, traefik) or portainer is running on those ports.",
+    category: "Networking",
+    tags: ["Reverse Proxy", "DNS", "SSL", "Network", "Security"],
+    githubUrl: "https://github.com/tobychui/zoraxy",
+    icon: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/zoraxy.svg",
+    composeContent: `services:
+  zoraxy:
+    image: zoraxydocker/zoraxy:latest
+    container_name: \${CONTAINER_PREFIX}zoraxy
+    ports:
+      - "8000:8000"
+      - "80:80"
+      - "443:443"
+    environment:
+      - FASTGEOIP=true
+      - TZ=\${TZ}
+    volumes:
+      - \${CONFIG_PATH}/zoraxy:/opt/zoraxy/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: \${RESTART_POLICY}`,
+  },
+  {
+    id: "arcane",
+    name: "Arcane",
+    description:
+      "Simple and elegant Docker Management UI written in TypeScript and SvelteKit. Provides an intuitive interface for managing Docker containers, images, volumes, networks, and stacks.",
+    category: "Management",
+    tags: ["UI", "Management", "Docker", "Dashboard"],
+    githubUrl: "https://github.com/ofkm/arcane",
+    icon: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/arcane.svg",
+    composeContent: `services:
+  arcane:
+    image: ghcr.io/ofkm/arcane:latest
+    container_name: \${CONTAINER_PREFIX}arcane
+    ports:
+      - "3000:3000"
+    environment:
+      - PUID=\${PUID}
+      - PGID=\${PGID}
+      - TZ=\${TZ}
+      - APP_ENV=production
+      - PUBLIC_SESSION_SECRET=\${PUBLIC_SESSION_SECRET}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - \${DATA_PATH}/arcane:/app/data
+    restart: \${RESTART_POLICY}`,
+  },
 ]

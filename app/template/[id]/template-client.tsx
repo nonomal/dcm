@@ -226,9 +226,9 @@ export function TemplateClient({
         </div>
 
         <div className="mb-8">
-          <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
             {template.icon && (
-              <div className="relative h-16 w-16 sm:h-20 sm:w-20 flex-shrink-0 overflow-hidden rounded-md border bg-background shadow-sm">
+              <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border bg-background shadow-sm sm:h-20 sm:w-20">
                 <Image
                   alt={template.name}
                   className="object-contain p-2"
@@ -284,7 +284,7 @@ export function TemplateClient({
           >
             <CardHeader className="pb-0">
               <div className="flex items-center justify-between">
-                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
+                <TabsList className="grid w-full grid-cols-2 gap-1 sm:grid-cols-4">
                   <TabsTrigger
                     value="services"
                     className="text-xs sm:text-base"
@@ -297,7 +297,7 @@ export function TemplateClient({
                       role="img"
                       viewBox="0 0 24 24"
                       xmlns="http://www.w3.org/2000/svg"
-                      className="mr-1 h-3 w-3 sm:h-4 sm:w-4 fill-current"
+                      className="mr-1 h-3 w-3 fill-current sm:h-4 sm:w-4"
                     >
                       <path d={siDocker.path} />
                     </svg>
@@ -326,7 +326,7 @@ export function TemplateClient({
                   {templateTools.map((tool) => (
                     <div
                       key={tool.id}
-                      className="flex flex-col sm:flex-row items-start sm:items-center gap-4 rounded-md border bg-card p-4 shadow-sm transition-colors hover:bg-accent/10"
+                      className="flex flex-col items-start gap-4 rounded-md border bg-card p-4 shadow-sm transition-colors hover:bg-accent/10 sm:flex-row sm:items-center"
                     >
                       {tool.icon && (
                         <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-md border bg-background">
@@ -339,7 +339,7 @@ export function TemplateClient({
                         </div>
                       )}
 
-                      <div className="min-w-0 w-full flex-1">
+                      <div className="w-full min-w-0 flex-1">
                         <div className="flex items-center justify-between">
                           <div className="truncate font-medium text-lg">
                             {tool.name}

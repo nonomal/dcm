@@ -24,6 +24,11 @@ export const databases: DockerTool[] = [
       - MYSQL_USER=default_user
       - MYSQL_PASSWORD=your_password
       - TZ=\${TZ}
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: \${RESTART_POLICY}`,
   },
   {
@@ -78,6 +83,11 @@ export const databases: DockerTool[] = [
       - POSTGRES_DB=postgres
       - TZ=\${TZ}
     shm_size: 128mb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: \${RESTART_POLICY}`,
   },
   {
@@ -103,6 +113,12 @@ export const databases: DockerTool[] = [
       - MONGO_INITDB_ROOT_PASSWORD=your_password
       - MONGO_INITDB_DATABASE=admin
       - TZ=\${TZ}
+    healthcheck:
+      test: ["CMD", "mongosh", "--username", "$MONGO_INITDB_ROOT_USERNAME", "--password", "$MONGO_INITDB_ROOT_PASSWORD", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping').ok"]
+      start_period: 30s
+      interval: 30s
+      timeout: 10s
+      retries: 3
     restart: \${RESTART_POLICY}`,
   },
   {
@@ -116,16 +132,44 @@ export const databases: DockerTool[] = [
     icon: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/redis.svg",
     composeContent: `services:
   redis:
-    image: redis:alpine
+    image: redis:8.0.2
     container_name: \${CONTAINER_PREFIX}redis
     ports:
       - "6379:6379"
-    command: redis-server --save 20 1 --loglevel warning --requirepass your_password
+    command: redis-server /usr/local/etc/redis/redis-full.conf
     volumes:
       - \${DATA_PATH}/redis:/data
-      - \${CONFIG_PATH}/redis:/usr/local/etc/redis
+      - \${CONFIG_PATH}/redis/redis-full.conf:/usr/local/etc/redis/redis-full.conf
     environment:
       - TZ=\${TZ}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: \${RESTART_POLICY}`,
+  },
+  {
+    id: "redisinsight",
+    name: "RedisInsight",
+    description:
+      "A powerful GUI for Redis that provides visualization and management of your Redis data structures, memory usage, and performance metrics.",
+    category: "Database",
+    tags: ["Redis", "GUI", "Management", "Visualization"],
+    githubUrl: "https://github.com/RedisInsight/RedisInsight",
+    icon: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/redis.svg",
+    composeContent: `services:
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: \${CONTAINER_PREFIX}redisinsight
+    ports:
+      - "5540:5540"
+    environment:
+      - TZ=\${TZ}
+      - RI_APP_PORT=5540
+      - RI_APP_HOST=0.0.0.0
+    volumes:
+      - \${DATA_PATH}/redisinsight:/data
     restart: \${RESTART_POLICY}`,
   },
   {

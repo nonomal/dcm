@@ -1,6 +1,7 @@
 "use client"
 
 import ToolGrid from "@/components/ToolGrid"
+import DiscoveryPanel from "@/components/discovery-panel"
 import FloatingBar from "@/components/floating-bar"
 import SettingsPanel from "@/components/settings-panel"
 import { Button } from "@/components/ui/button"
@@ -76,16 +77,20 @@ export default function DockerToolsClient({
     <SettingsProvider>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-bold text-3xl">Docker Compose Maker</h1>
-        <Link prefetch href="/templates">
-          <Button className="flex items-center gap-2">
+        <Button asChild className="flex items-center gap-2">
+          <Link prefetch={false} href="/templates">
             <Palette size={16} />
             Template Gallery
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
 
       <div className="[animation-delay:300ms] motion-safe:animate-slide-down">
         <SettingsPanel />
+      </div>
+
+      <div className="[animation-delay:450ms] motion-safe:animate-slide-down">
+        <DiscoveryPanel />
       </div>
 
       <FloatingBar

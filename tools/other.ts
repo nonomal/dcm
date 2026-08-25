@@ -797,9 +797,9 @@ export const other: DockerTool[] = [
   {
     id: "betterbahn",
     name: "Better Bahn",
-    description: "Better Bahn - A tool for monitoring and tracking TV shows.",
-    category: "Media",
-    tags: ["TV", "PVR", "Monitoring"],
+    description: "Better Bahn - A German train schedule and public transit app for self-hosting. Track Deutsche Bahn departures, arrivals, and connections from your own infrastructure.",
+    category: "Other",
+    tags: ["Transit", "Train", "Public Transport", "Germany"],
     githubUrl: "https://github.com/l2xu/betterbahn",
     composeContent: `services:
   betterbahn:
@@ -819,5 +819,180 @@ export const other: DockerTool[] = [
       - ALL
     security_opt:
       - no-new-privileges=true`,
+  },
+  {
+    id: "nowasp",
+    name: "NOWASP Mutillidae II",
+    description:
+      "OWASP Mutillidae II is a free, open-source, deliberately vulnerable web application for web security training. Provides hands-on experience with the OWASP Top 10 vulnerabilities in a safe, isolated environment.",
+    category: "Security",
+    tags: ["Security", "Pen Testing", "OWASP", "Training"],
+    githubUrl: "https://github.com/citizen-stig/dockermutillidae",
+    composeContent: `services:
+  nowasp:
+    image: citizenstig/nowasp
+    container_name: \${CONTAINER_PREFIX}nowasp
+    ports:
+      - "3000:80"
+    restart: \${RESTART_POLICY}`,
+  },
+  {
+    id: "shadowbroker",
+    name: "Shadowbroker",
+    description:
+      "OSINT intelligence platform for tracking ships, flights, and surveillance camera feeds. Streams real-time AIS vessel data, live flight tracking, and Singapore CCTV footage through a unified frontend.",
+    category: "Other",
+    tags: ["OSINT", "Tracking", "Intelligence", "AIS"],
+    githubUrl: "https://github.com/BigBodyCobain/Shadowbroker",
+    composeContent: `services:
+  shadowbroker-backend:
+    image: ghcr.io/bigbodycobain/shadowbroker-backend:latest
+    container_name: \${CONTAINER_PREFIX}shadowbroker-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - AIS_API_KEY=\${AIS_API_KEY}
+      - OPENSKY_CLIENT_ID=\${OPENSKY_CLIENT_ID}
+      - OPENSKY_CLIENT_SECRET=\${OPENSKY_CLIENT_SECRET}
+      - LTA_ACCOUNT_KEY=\${LTA_ACCOUNT_KEY}
+      - CORS_ORIGINS=\${CORS_ORIGINS}
+    volumes:
+      - \${DATA_PATH}/shadowbroker:/app/data
+    restart: \${RESTART_POLICY}
+
+  shadowbroker-frontend:
+    image: ghcr.io/bigbodycobain/shadowbroker-frontend:latest
+    container_name: \${CONTAINER_PREFIX}shadowbroker-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - BACKEND_URL=http://shadowbroker-backend:8000
+    depends_on:
+      - shadowbroker-backend
+    restart: \${RESTART_POLICY}`,
+  },
+  {
+    id: "authentik",
+    name: "Authentik",
+    description:
+      "Open-source Identity Provider focused on flexibility and versatility. Supports SAML, OAuth2, LDAP, and more. Provides SSO, multi-factor authentication, and user provisioning. Requires external Redis and PostgreSQL instances. Navigate to /if/flow/initial-setup/ for first-time setup.",
+    category: "Security",
+    tags: ["Security", "SSO", "Identity Provider", "OAuth2", "SAML"],
+    githubUrl: "https://github.com/goauthentik/authentik",
+    icon: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/authentik.svg",
+    composeContent: `services:
+  authentik:
+    image: ghcr.io/goauthentik/server:latest
+    container_name: \${CONTAINER_PREFIX}authentik
+    command: server
+    ports:
+      - "9000:9000"
+      - "9443:9443"
+    environment:
+      - TZ=\${TZ}
+      - AUTHENTIK_REDIS__HOST=\${REDIS_HOST}
+      - AUTHENTIK_POSTGRESQL__HOST=\${POSTGRESQL_HOST}
+      - AUTHENTIK_POSTGRESQL__USER=\${POSTGRESQL_USERNAME}
+      - AUTHENTIK_POSTGRESQL__NAME=\${POSTGRESQL_DATABASE_NAME}
+      - AUTHENTIK_POSTGRESQL__PASSWORD=\${POSTGRESQL_USER_PASSWORD}
+      - AUTHENTIK_SECRET_KEY=\${AUTHENTIK_SECRET_KEY}
+      - AUTHENTIK_BOOTSTRAP_PASSWORD=\${AUTHENTIK_BOOTSTRAP_PASSWORD}
+      - AUTHENTIK_BOOTSTRAP_TOKEN=\${AUTHENTIK_BOOTSTRAP_TOKEN}
+      - AUTHENTIK_BOOTSTRAP_EMAIL=\${AUTHENTIK_BOOTSTRAP_EMAIL}
+    volumes:
+      - \${CONFIG_PATH}/authentik/media:/media
+      - \${CONFIG_PATH}/authentik/templates:/templates
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: \${RESTART_POLICY}`,
+  },
+  {
+    id: "authentik-worker",
+    name: "Authentik Worker",
+    description:
+      "Background worker component for the Authentik identity provider. Handles asynchronous tasks such as policy enforcement, flow execution, and scheduled maintenance. Requires a running Authentik server instance.",
+    category: "Security",
+    tags: ["Security", "SSO", "Identity Provider", "Worker"],
+    githubUrl: "https://github.com/goauthentik/authentik",
+    icon: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/authentik.svg",
+    composeContent: `services:
+  authentik-worker:
+    image: ghcr.io/goauthentik/server:latest
+    container_name: \${CONTAINER_PREFIX}authentik-worker
+    command: worker
+    environment:
+      - TZ=\${TZ}
+      - AUTHENTIK_REDIS__HOST=\${REDIS_HOST}
+      - AUTHENTIK_POSTGRESQL__HOST=\${POSTGRESQL_HOST}
+      - AUTHENTIK_POSTGRESQL__USER=\${POSTGRESQL_USERNAME}
+      - AUTHENTIK_POSTGRESQL__NAME=\${POSTGRESQL_DATABASE_NAME}
+      - AUTHENTIK_POSTGRESQL__PASSWORD=\${POSTGRESQL_USER_PASSWORD}
+      - AUTHENTIK_SECRET_KEY=\${AUTHENTIK_SECRET_KEY}
+    volumes:
+      - \${CONFIG_PATH}/authentik/media:/media
+      - \${CONFIG_PATH}/authentik/certs:/certs
+      - \${CONFIG_PATH}/authentik/templates:/templates
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: \${RESTART_POLICY}`,
+  },
+  {
+    id: "authentik-proxy",
+    name: "Authentik Proxy",
+    description:
+      "Outpost proxy component for Authentik that enforces authentication on upstream services. Sits in front of your applications to add SSO, MFA, and access control without modifying the apps themselves.",
+    category: "Security",
+    tags: ["Security", "Proxy", "Reverse Proxy", "SSO"],
+    githubUrl: "https://github.com/goauthentik/authentik",
+    icon: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/authentik.svg",
+    composeContent: `services:
+  authentik-proxy:
+    image: ghcr.io/goauthentik/proxy:latest
+    container_name: \${CONTAINER_PREFIX}authentik-proxy
+    ports:
+      - "\${AUTHENTIK_HTTP_PORT:-9000}:9000"
+      - "\${AUTHENTIK_HTTPS_PORT:-9443}:9443"
+    environment:
+      - TZ=\${TZ}
+      - AUTHENTIK_HOST=\${AUTHENTIK_HOST}
+      - AUTHENTIK_INSECURE=false
+      - AUTHENTIK_TOKEN=\${AUTHENTIK_TOKEN}
+    restart: \${RESTART_POLICY}`,
+  },
+  {
+    id: "octoeverywhere-elegoo-connect",
+    name: "OctoEverywhere Elegoo Connect",
+    description:
+      "OctoEverywhere companion container for Elegoo 3D printers. Bridges your Elegoo printer to OctoEverywhere's remote monitoring and control cloud platform, enabling access from anywhere.",
+    category: "Other",
+    tags: ["3D Printing", "Elegoo", "Remote Access", "IoT"],
+    githubUrl: "https://github.com/QuinnDamerell/OctoPrint-OctoEverywhere",
+    composeContent: `services:
+  octoeverywhere-elegoo-connect:
+    image: octoeverywhere/octoeverywhere:latest
+    container_name: \${CONTAINER_PREFIX}octoeverywhere-elegoo-connect
+    environment:
+      - COMPANION_MODE=elegoo
+      - PRINTER_IP=\${PRINTER_IP}
+    volumes:
+      - \${DATA_PATH}/octoeverywhere:/data
+    restart: \${RESTART_POLICY}`,
+  },
+  {
+    id: "omni-tools",
+    name: "OmniTools",
+    description:
+      "Self-hosted collection of powerful web-based tools for everyday tasks. No ads, no tracking, just fast, accessible utilities right from your browser!",
+    category: "Other",
+    tags: ["Tools", "Editor", "File Converter"],
+    githubUrl: "https://github.com/iib0011/omni-tools",
+    icon: "https://github.com/iib0011/omni-tools/blob/main/public/favicon.svg",
+    composeContent: `services:
+  omnitools:
+    container_name: \${CONTAINER_PREFIX}omni-tools
+    image: ghcr.io/iib0011/omni-tools:latest
+    ports:
+      - "5005:80"
+    restart: \${RESTART_POLICY}
+    security_opt:
+      - "no-new-privileges:true"`,
   },
 ]
